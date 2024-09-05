@@ -8,9 +8,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'https://rentalcar-frontend-keshavapatteris-projects.vercel.app',
+    origin: 'rentalcar-frontend.vercel.app',
     credentials: true,
 }));
+// https://rentalcar-frontend-keshavapatteris-projects.vercel.app
 
 app.use(express.json()); // Parses incoming JSON requests
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
