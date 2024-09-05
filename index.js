@@ -1,6 +1,6 @@
 import express from 'express';
 import apiRouter from './ROUTES/index.js';
-import { connectDB } from './config/db.js';
+import { connectDB } from './Config/db.js'
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 

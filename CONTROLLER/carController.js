@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import { cloudinaryInstance } from "../Config/cloudinaryConfig.js";
+
 import { Car } from "../MODEL/carModel.js"
+import { cloudinaryInstance } from "../Config/cloudinaryConfig.js";
 
 //carlist
 export const getcarlist =async (req,res,next)=>{
