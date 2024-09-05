@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'https://rentalcarsauto.netlify.app',
+    origin: 'https://rentalcar-frontend-keshavapatteris-projects.vercel.app',
     credentials: true,
 }));
 
