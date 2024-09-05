@@ -1,0 +1,10 @@
+
+
+ENV
+
+
+PORT=4500
+
+MONGO_URI =mongodb+srv://keshu:keshu@orginalproject.wtphq.mongodb.net/rental_car
+
+JWT_SECRET_KEY=jgvcbmnxbn

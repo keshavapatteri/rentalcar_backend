@@ -1,0 +1,26 @@
+export const createCar = asyncHandler(async (req, res, next) => {
+   
+    // Validate request body
+    
+    const {title, model, year, priceperday, capacity, fuel, transmission, mileage, status, color, registrationnumber, location, insurancedetails } = req.body;
+
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: "Please upload an image" });
+    }
+    
+    const existingCar = await Car.findOne({ model: model });
+    if (existingCar) {
+        return res.status(400).json({ success: false, message: "Car already exists" });
+    }
+    
+    // Upload an image
+    const uploadResult = await cloudinaryInstance.uploader.upload(req.file.path, { folder: "car" });
+
+    const newCar = new Car({title, model, year, priceperday, capacity, fuel, transmission, mileage, status, color, registrationnumber, location, insurancedetails });
+    if (uploadResult?.url) {
+        newCar.image = uploadResult.url;
+    }
+    
+    await newCar.save();
+    res.json({ success: true, message: 'New car created successfully!', data: newCar });
+} )

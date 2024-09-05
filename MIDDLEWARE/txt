@@ -1,0 +1,84 @@
+/**
+ * Authentication in the Middleware
+ */
+const jwt = require('jsonwebtoken');
+const generalHelper = require("../helpers/general.helper");
+const generalMessages = require("../messages/general.messages");
+
+exports.authentication = function (req, res, next) {
+  try {
+    //Session checking exclusion apis
+    const excludeList = [
+      "/auth/signon",
+      "/auth/verifiyUserAction",
+      "/auth/refreshToken",
+      "/auth/verifyEmail",
+      "/auth/googleLogin",
+      "/auth/logon",
+      "/auth/resetPassword",
+      "/auth/updatePassword",
+      "/auth/verifyEmailAction",
+      // "/wantad/getWantAdListByFilters",
+      "/wantad/getWantAdDetailsById",
+      "/webhook/webhook",
+      // "/payments/createSubscriptionPlanOnSignup",
+      "/master/getPropertyTypes",
+      "/master/getWantSquareFeetList",
+      "/sharead/wantad",
+      "/wantad/getGitchaAvailable",
+      "/wantad/getGitchaAvailableCities",
+      "/user/saveGitchaContactUs",
+    ];
+
+    // if (process.env.RESTAPIKEY != req.headers["apikey"])
+    //   return generalHelper.handleError(req, res, "Admin API Auth Failed", generalMessages.invalidApiKey, 1001, 401);
+    if (excludeList.includes(req.url) || excludeList.includes(require("url").parse(req.url).pathname)) {
+      next();
+    }
+    
+    else {
+      // console.log(req.headers["authorization"]);
+      // console.log('URL : ', req.url);
+      if ((req.url.startsWith("/wantad/getWantAdListByFilters")) && 
+        ((typeof req.headers["authorization"]==='undefined') ||
+         (req.headers["authorization"] === null) || 
+         (req.headers["authorization"].startsWith('Bearer null')))) {
+        // If the requested URL is "/wantad/getWantAdListByFilters", allow access without authorization
+        return next();
+      }
+      else{
+
+        if (typeof req.headers["authorization"] === 'undefined')
+          return generalHelper.handleError(req, res, "UnAuthorized User", generalMessages.sessionTokenMissing, 1001, 401);
+
+        res.locals.attribution = (req.get('attribution') && req.get('attribution').length > 0) ? JSON.parse(req.get('attribution')) : {};
+
+        //checking for session key of user
+        const privateKey = process.env.ACCESS_TOKEN_SECRET;
+        jwt.verify(req.headers["authorization"], privateKey, function (err, authData) {
+          if (err) {
+            if (err.name == "TokenExpiredError")
+              return generalHelper.handleError(req, res, "Token Exipred", generalMessages.tokenExpired, 401);
+            else
+              return generalHelper.handleError(req, res, "Invalid Token", generalMessages.invalidToken, 2001);
+          }
+          else {
+            // console.log("authData.userId " + authData.userId);
+            res.locals.userIp = req.get('x-forwarded-for') ? req.get('x-forwarded-for').split(',')[0] : '' || '';
+            res.locals.userId = authData.userId;
+            res.locals.sessionToken = req.get('authorization');
+            res.locals.responseData = {};
+            res.locals.responseInfo = [];
+            res.locals.responseMessage = '';
+            req.query.userId = authData.userId;
+            next();
+          }
+        });
+      }
+    }
+
+  } catch (e) {
+    console.log('Error : ', e)
+    generalHelper.handleError(req, res, e.stack, generalMessages.technicalError);
+  }
+};
