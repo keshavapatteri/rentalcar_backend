@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { authUser } from '../../MIDDLEWARE/authUser.js';
-import { deletePayment, getPaymentByBookingId, getPaymentsByUserId, processPayment, updatedPayment } from '../../CONTROLLER/PaymentController.js';
+import { confirmpayments, deletePayment, getPaymentByBookingId, getPaymentsByUserId, processPayment, updatebooking, updatedPayment } from '../../CONTROLLER/PaymentController.js';
 // Route to process a payment
 router.post("/create",processPayment);    //authUser 
 // Route to get payment details by booking ID
@@ -14,4 +14,7 @@ router.put("/update/:paymentId",authUser, updatedPayment);
 router.delete("/delete/:paymentId",authUser , deletePayment);
 
 
+router.put("/updatepayment/:id",confirmpayments)
+
+router.get("/updatebooking/:id",updatebooking)
 export default router;

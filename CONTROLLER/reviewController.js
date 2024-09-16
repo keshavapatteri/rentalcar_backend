@@ -120,3 +120,15 @@ export const deleteReview = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getreviewlist =async (req,res,next)=>{
+  try {
+      
+      const reviewlist = await Review.find();
+      
+      res.json({success:true,message:"feetched review list",data:reviewlist});
+
+  } catch (error) {
+res.status(error.status||500).json({message:error.message||"Internal server error"})        
+  }
+}

@@ -21,12 +21,12 @@ res.status(error.status||500).json({message:error.message||"Internal server erro
 export const createCar = async (req, res, next) => {
   try {
     const {
-      title, model, year, priceperday, capacity, fuel,
+      title,category, model, year, priceperday, capacity, fuel,
       transmission, mileage, status, color, registrationnumber,
       location, insurancedetails
     } = req.body;
 
-    // Check if an image file is provided
+    // // Check if an image file is provided
     if (!req.file) {
       return res.status(400).json({ success: false, message: "Please upload an image" });
     }
@@ -42,7 +42,7 @@ export const createCar = async (req, res, next) => {
 
     // Create a new car object with the provided data
     const newCar = new Car({
-      title, model, year, priceperday, capacity, fuel,
+      title,category, model, year, priceperday, capacity, fuel,
       transmission, mileage, status, color, registrationnumber,
       location, insurancedetails,
       image: uploadResult?.url // Save the image URL from Cloudinary
@@ -60,9 +60,7 @@ export const createCar = async (req, res, next) => {
     next(error);
   }
 };
-
   
-
 // update car
 export const updatedCar =async (req,res,next)=>{
     try {

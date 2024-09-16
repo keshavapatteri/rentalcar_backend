@@ -1,5 +1,5 @@
 import express from 'express'
-import { createbooking, deleteBooking, getAllBookings, getbookingbyid, updateBooking } from '../../CONTROLLER/BookingController.js';
+import { bookingstatus, createbooking, deleteBooking, getAllBookings, getbookingbyid, getBookingsByUserId, updateBooking } from '../../CONTROLLER/BookingController.js';
 const router = express.Router()
 
 
@@ -16,6 +16,10 @@ router.delete('/deletebooking/:id',deleteBooking)
 router.get('/getbooking/:id',getbookingbyid)
 
 router.get('/allBookings',getAllBookings)
+
+router.get('/getbookinguser/:userId',getBookingsByUserId)
+
+router.put('/bookingstatus/:id',bookingstatus)
 
 
 export default router;

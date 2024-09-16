@@ -48,11 +48,12 @@ export const userWishlist = async (req, res, next) => {
   };
   
 
+
 export const getWishlist = async (req,res,next)=>{
    try {
     const{userId}=req.params;
     
-    const wishlist = await Wishlist.findOne({user:userId});
+    const wishlist = await Wishlist.findOne({user:userId}).populate('cars');
    
     if(!wishlist){
         return res.status(500).json({success:false,message:'whish list no found'})

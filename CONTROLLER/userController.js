@@ -7,9 +7,9 @@ import { generateUserToken } from "../UTILITIS/generateToken.js";
 
 export const UserCreate = async (req, res, next) => {
     try {
-    
-        const { name, email, password, } = req.body
-        if (!name || !email || !password ) {
+
+        const { name, email, password,address,phonenumber,drivinglicencenumber } = req.body
+        if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: `all fields required` });
         }
         //Address, phonenumber, drivinglicencenumber, paymentmethodes
@@ -18,8 +18,9 @@ export const UserCreate = async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(password, salt);
 
         //for storing to DB-make a instance
+ // Upload the image to Cloudinary
 
-        const newUser = new User({ name, email,password:hashedPassword })
+        const newUser = new User({ name, email, password: hashedPassword,address,phonenumber,drivinglicencenumber  })
         //,Address, phonenumber, drivinglicencenumber, paymentmethodes
         await newUser.save() // saving to db
 
@@ -35,7 +36,7 @@ export const UserCreate = async (req, res, next) => {
 
 
     } catch (error) {
-        res.status(error.status ||500).json({ message:error.message||'internal error'});
+        res.status(error.status || 500).json({ message: error.message || 'internal error' });
 
     }
 }
@@ -43,10 +44,10 @@ export const UserCreate = async (req, res, next) => {
 
 
 // For user loginexport 
-export  const UserLogin = async (req, res, next) => {
+export const UserLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
@@ -68,7 +69,7 @@ export  const UserLogin = async (req, res, next) => {
 
         const token = generateUserToken(email);
         res.cookie('token', token);
-        res.json({ success: true, message: "User logged in successfully", status:200, token: token });
+        res.json({ success: true, message: "User logged in successfully", status: 200, token: token });
 
     } catch (error) {
         console.error("Error:", error); // Log the error for debugging
@@ -80,28 +81,27 @@ export  const UserLogin = async (req, res, next) => {
 
 //===================>                        
 //user logout
-export const UserLogout=async(req,res,next)=>{
+export const UserLogout = async (req, res, next) => {
 
     res.clearCookie("token")
-    res.json({success:true,message:'User logged out successfully'})
-    
-  
-   }
+    res.json({ success: true, message: 'User logged out successfully' })
+
+
+}
 
 
 //user profile
 export const UserProfile = async (req, res, next) => {
     try {
+
+        const user=req.user
+        const userData=await User.findOne({email:user.email}).select("-password")
+
         
-       const {id}=req.params;
-       const userdata = await User.findById(id);
-
-res.json({success:true,message:"user data fetched",data:userdata})
-
-
+      res.json({success:true,message:'user data fetched',data:userData})
 
     } catch (error) {
-        res.status(500).json({ message: error.message|| "Internal server" });
+        res.status(500).json({ message: error.message || "Internal server" });
 
 
     }

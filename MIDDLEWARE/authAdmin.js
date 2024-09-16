@@ -33,5 +33,3 @@ export const authAdmin = (req, res, next) => {
         res.status(500).json({ message:error.message|| "Internal server error" });
     }
 };
-
-

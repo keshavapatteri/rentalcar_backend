@@ -1,5 +1,5 @@
 import { Payment } from '../MODEL/paymentModel.js'
- import { booking } from "../MODEL/bookingModel.js";
+ import {  Booking } from "../MODEL/bookingModel.js";
  import { Stripe } from 'stripe';
 import { config } from 'dotenv';
 
@@ -31,20 +31,48 @@ export const getPaymentByBookingId = async (req, res, next) => {
   
 // to get all payments by user ID
 export const getPaymentsByUserId = async (req, res, next) => {
-    try {
-      const { userId } = req.params;
-  
-      const payments = await Payment.find({ user: userId }).populate("booking");
-  
-      if (!payments || payments.length === 0) {
-        return res.status(404).json({ success: false, message: "No payments found for this user" });
-      }
-  
-      res.status(200).json({ success: true, data: payments });
-    } catch (error) {
-      next(error);
+  try {
+    const { userId } = req.params;
+
+    // Retrieve payments associated with the user from your database
+    const payments = await Payment.find({ user: userId }).populate("booking");
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ success: false, message: "No payments found for this user" });
     }
-  };
+
+    // Retrieve additional details from Stripe for each payment (if needed)
+    const stripePayments = await Promise.all(payments.map(async (payment) => {
+      try {
+        const stripePayment = await stripe.paymentIntents.retrieve(payment.stripePaymentId);
+        return {
+          ...payment.toObject(), // Convert Mongoose document to plain object
+          stripe: {
+            id: stripePayment.id,
+            amount: stripePayment.amount_received,
+            status: stripePayment.status,
+          }
+        };
+      } catch (error) {
+        // Handle error retrieving Stripe payment details
+        return {
+          ...payment.toObject(),
+          stripe: {
+            id: payment.stripePaymentId,
+            amount: null,
+            status: 'unknown',
+          }
+        };
+      }
+    }));
+
+    // Return the payments data with Stripe details
+    res.status(200).json({ success: true, data: stripePayments });
+  } catch (error) {
+    // Pass any errors to the global error handler
+    next(error);
+  }
+};
 
 
 
@@ -111,9 +139,21 @@ export const processPayment = async (req, res, next) => {
             payment_method_types: ["card"],
             line_items: lineItems,
             mode: "payment",
-            success_url: `${process.env.client_domain}/user/success`,
-            cancel_url: `${process.env.client_domain}/user/cancel`,
+            success_url: `${process.env.REACT_APP_PAYMENT_SUCCESS_URL}/user/success`,
+            cancel_url: `${process.env.REACT_APP_PAYMENT_SUCCESS_URL}/user/cancel`,
         });
+console.log(`########stripe res`, session)
+ // Save payment details to MongoDB
+ const payment = new Payment({
+  sessionId: session.id,
+ ////////////////////////////////////////////////////check
+ 
+  paymentStatus: 'pending' // Initially set to 'pending'
+});
+
+await payment.save();
+
+
 
         console.log('sessionId====', session.id);
         
@@ -122,4 +162,61 @@ export const processPayment = async (req, res, next) => {
         res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });
     }
     
+};
+
+// NEW CODE CHANGE TO  BOOKING STATUS
+export const confirmpayments = async (req, res) => {
+  try {
+const{id}=req.params;
+    // const bookingid ='66e471ca9d7ea63aa23aa4ff';
+    console.log("seen",id);  // Correctly logging bookingid
+    
+    // Find the booking by ID
+    const booking = await Booking.findById(id);
+ 
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    // Update booking payment status and confirmation time
+    booking.paymentStatus = 'paid';
+    booking.confirmedAt = new Date();
+    console.log("Updated Booking Data (before save):", booking);
+    // Save the updated booking
+    await booking.save();
+  
+    console.log("Updated Booking Data ( save):", booking);
+    // Respond with success and updated booking data
+    return res.status(200).json({ success: true, message: "Payment confirmed", data: booking });
+  } catch (error) {
+    // Handle errors and send a response
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+//get booking by id
+
+//updatebooking
+
+export const updatebooking = async (req, res, next) => {
+  try {
+    let { id } = req.params;
+    
+    // Trim any leading or trailing whitespace from the id
+    id = id.trim();
+    
+    console.log(req.params);
+    
+    // Find booking by id
+    const bookingbyid = await Booking.findById(id);
+
+    if (!bookingbyid) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    res.json({ success: true, message: "Fetched booking details", data: bookingbyid });
+    console.log(bookingbyid);
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
 };
