@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     phonenumber: String,
      drivinglicencenumber: Number,
     // paymentmethodes: String
+    image: {
+      type: String
+   
+
+  },
     createdAt: {
         type: Date,
         default: Date.now,

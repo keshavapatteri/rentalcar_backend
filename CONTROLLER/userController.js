@@ -2,8 +2,10 @@ import bcrypt from "bcrypt"
 
 import { User } from "../MODEL/userModel.js";
 import { generateUserToken } from "../UTILITIS/generateToken.js";
-
+import { cloudinaryInstance } from "../Config/cloudinaryConfig.js";
 // For User Creating...
+
+// User Create Function
 
 export const UserCreate = async (req, res, next) => {
     try {
@@ -12,26 +14,27 @@ export const UserCreate = async (req, res, next) => {
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: `all fields required` });
         }
-        //Address, phonenumber, drivinglicencenumber, paymentmethodes
-        //|| !Address || !phonenumber || !drivinglicencenumber || !paymentmethodes
+       
         const salt = 10;
         const hashedPassword = bcrypt.hashSync(password, salt);
 
         //for storing to DB-make a instance
  // Upload the image to Cloudinary
+ if (!req.file) {
+    return res.status(400).json({ success: false, message: "Please upload an image" });
+  }
+  const uploadResult = await cloudinaryInstance.uploader.upload(req.file.path, { folder: "car" });
 
-        const newUser = new User({ name, email, password: hashedPassword,address,phonenumber,drivinglicencenumber  })
-        //,Address, phonenumber, drivinglicencenumber, paymentmethodes
+        const newUser = new User({ name, email, password: hashedPassword,address,phonenumber,drivinglicencenumber,image: uploadResult?.url  })
+   
         await newUser.save() // saving to db
 
 
-        //Token creation For Authentication.using with email
-        //calling from generateToken
+    
         const token = generateUserToken(email);
 
-        //for saving cookie
         res.cookie('token', token);
-        //sucess message
+    
         res.json({ success: true, message: "user created suceessfully" })
 
 
@@ -40,7 +43,6 @@ export const UserCreate = async (req, res, next) => {
 
     }
 }
-
 
 
 // For user loginexport 
