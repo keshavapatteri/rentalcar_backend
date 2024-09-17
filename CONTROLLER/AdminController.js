@@ -105,15 +105,14 @@ export const adminLogin = async (req, res, next) => {
     // Create token (assuming you have a function `generateAdminToken`)
     const token = generateAdminToken(adminExist._id, "admin");
 
-    // Set token in an HTTP-only cookie
     res.cookie("token", token, {
-      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === 'production', // Ensures the cookie is sent over HTTPS in production
-      maxAge: 24 * 60 * 60 * 1000, // Sets cookie expiration time (e.g., 1 day)
-      sameSite: 'Strict', // Helps prevent CSRF attacks
-    });
-console.log(token);
+      sameSite: "None",
+      secure: true,
+      httpOnly: true,
+        });
 
+  res.cookie('token', token,{sameSite:"None",secure:true});
+  
     // Send response
     return res.json({ success: true, message: "Admin login successful", status: 200, token });
   } catch (error) {
