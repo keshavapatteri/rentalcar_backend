@@ -70,7 +70,13 @@ export const UserLogin = async (req, res, next) => {
         }
 
         const token = generateUserToken(email);
-        res.cookie('token', token);
+        res.cookie("token", token, {
+            sameSite: "None",
+            secure: true,
+            httpOnly: true,
+        });
+
+        res.cookie('token', token,{sameSite:"None",secure:true});
         res.json({ success: true, message: "User logged in successfully", status: 200, token: token });
 
     } catch (error) {
