@@ -10,8 +10,8 @@ const userSchema = new mongoose.Schema({
      drivinglicencenumber: Number,
     // paymentmethodes: String
     image: {
-      type: String
-   
+      type: String,
+   required:true,
 
   },
     createdAt: {
