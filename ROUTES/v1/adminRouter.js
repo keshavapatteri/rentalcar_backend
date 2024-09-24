@@ -49,7 +49,7 @@ router.delete("/car/:id",authAdmin,deleteCar) //
 //Bookings
 
 // Route to get all bookings (admin only)
-router.get("/allbookings",getAllBookings);  //authAdmin,
+router.get("/allbookings",authAdmin,getAllBookings);  //
 
 
 router.delete("/booking/:id",authAdmin, deleteBooking);  // 

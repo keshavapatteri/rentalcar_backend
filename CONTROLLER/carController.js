@@ -71,9 +71,6 @@ export const updatedCar =async (req,res,next)=>{
       console.log("car-controller",id)
       const updateCar =await Car.findByIdAndUpdate(id,{title,model,Year,priceperday,capacity,fuel,transmission,milege,status,color,registrationnumber,location,insurancedetails },{new:true})
 
-      
-
-
       res.json({success:true,message:"New car list Updated successfully",data:updateCar});
 
     } catch (error) {

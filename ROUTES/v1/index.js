@@ -21,4 +21,4 @@ v1Router.use('/wishlist',wishlistRouter)
 v1Router.use('/location',locationRouter)
 v1Router.use('/contact',contactRouter)
 v1Router.use('/nodemailer',nodemailerRouter)
-export default v1Router;
+export default v1Router; 

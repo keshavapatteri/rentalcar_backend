@@ -24,6 +24,12 @@ export const createReview = async (req, res, next) => {
       if (!carExists) {
         return res.status(404).json({ success: false, message: "Car not found" });
       }
+// Check if the user has already reviewed this car
+const existingReview = await Review.findOne({ user: userId, car: carId });
+
+if (existingReview) {
+  return res.status(400).json({ success: false, message: "You have already reviewed this car" });
+}
   
       // Create the review
       const review = new Review({
@@ -40,6 +46,54 @@ export const createReview = async (req, res, next) => {
       next(error);
     }
   };
+
+// export const createReview = async (req, res, next) => {
+//   try {
+//     const { userId, carId, rating, reviewText } = req.body;
+
+//     // Validate input
+//     if (!userId || !carId || !rating || !reviewText) {
+//       return res.status(400).json({ success: false, message: "All fields are required" });
+//     }
+
+//     // Check if user and car exist
+//     const userExists = await User.findById(userId);
+//     const carExists = await Car.findById(carId);
+
+//     if (!userExists) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+//     if (!carExists) {
+//       return res.status(404).json({ success: false, message: "Car not found" });
+//     }
+
+//     // Check if the user has already reviewed this car
+//     const existingReview = await Review.findOne({ user: userId, car: carId });
+
+//     if (existingReview) {
+//       return res.status(400).json({ success: false, message: "You have already reviewed this car" });
+//     }
+
+//     // Create the review
+//     const review = new Review({
+//       user: userId,
+//       car: carId,
+//       rating,
+//       reviewText,
+//     });
+
+//     await review.save();
+
+//     res.status(201).json({ success: true, message: "Review created successfully", data: review });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
+
+
+
 
   
 // Get all reviews for a specific car
