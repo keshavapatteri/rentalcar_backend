@@ -8,12 +8,12 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://rentalcar-frontend.vercel.app',
     credentials: true,
 }));
-//https://rentalcar-frontend.vercel.app
+//
 
-// 
+// http://localhost:5173
 app.use(express.json()); // Parses incoming JSON requests
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
 app.use(cookieParser());
