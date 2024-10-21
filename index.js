@@ -13,7 +13,7 @@ app.use(cors({
 }));
 //
 
-// http://localhost:5173
+//http://localhost:5173 
 app.use(express.json()); // Parses incoming JSON requests
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
 app.use(cookieParser());

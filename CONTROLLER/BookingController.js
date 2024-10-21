@@ -12,16 +12,28 @@ export const createbooking = async (req, res, next) => {
             dropofflocation, 
             dropoffdate, 
             dropofftime, 
-            totalcost, 
-           
+            totalcost
         } = req.body;
 
-        // Check if all required fields are provided
-        // if (!pickuplocation || !pickupdate || !pickuptime || !dropofflocation || !dropoffdate || !dropofftime || !totalcost ) {
-        //     return res.status(400).json({ success: false, message: 'All fields are required' });
-        // }
+        
+        const existingBooking = await Booking.findOne({
+            carId,
+            $or: [
+                {
+                    pickupdate: { $lte: dropoffdate },
+                    dropoffdate: { $gte: pickupdate }
+                }
+            ]
+        });
 
-        // Create a new booking instance
+        if (existingBooking) {
+            return res.status(400).json({
+                success: false,
+                message: "This car is already booked during the selected dates."
+            });
+        }
+
+      
         const newBooking = new Booking({
             carId,
             userId,
@@ -31,20 +43,26 @@ export const createbooking = async (req, res, next) => {
             dropofflocation, 
             dropoffdate, 
             dropofftime, 
-            totalcost, 
-           
+            totalcost
         });
 
         // Save to the database
         await newBooking.save();
 
         // Send success response
-        return res.status(201).json({ success: true, message: "New Booking Created successfully", data: newBooking });
+        return res.status(201).json({ 
+            success: true, 
+            message: "New Booking Created successfully", 
+            data: newBooking 
+        });
 
     } catch (error) {
         // Handle errors and send an appropriate response
         console.error('Error creating booking:', error);
-        return res.status(500).json({ success: false, message: error.message || "Internal server error" });
+        return res.status(500).json({ 
+            success: false, 
+            message: error.message || "Internal server error" 
+        });
     }
 };
 

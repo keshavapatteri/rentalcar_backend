@@ -456,7 +456,7 @@ export const deleteByReview = async (req, res, next) => {
 export const Adminreviewlist =async (req,res,next)=>{
   try {
       
-      const reviewlist = await Review.find();
+      const reviewlist = await Review.find().populate("user").populate("car");
       
       res.json({success:true,message:"feetched review list",data:reviewlist});
 
